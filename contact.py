@@ -27,13 +27,12 @@ CORS(app, resources={
 
 @app.route('/contact', methods=['POST'])
 def receive_message():
-    print request
     if not request.json or 'mail' not in request.json:
-        print request.json
         abort(400)
     contact = {'mail': request.json['mail']}
     contacts = mongo.db.get_collection('contact')
-    contacts.insert_one(contact)
+    if not contacts.find_one({'mail': contact.get('mail')}):
+        contacts.insert_one(contact)
     return jsonify({'contact': make_public(contact)}), 201
 
 
